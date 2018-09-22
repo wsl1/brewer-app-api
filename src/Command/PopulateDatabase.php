@@ -24,37 +24,50 @@ class PopulateDatabase extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
+        $brewerRepository = $this->getContainer()->get('doctrine')->getRepository(Brewer::class);
+        $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
+
         $client = new Client([
-            // Base URI is used with relative requests
             'base_uri' => 'http://ontariobeerapi.ca/products/'
         ]);
         $response = $client->request('GET')->getBody()->getContents();
         $beers = json_decode($response, true);
-        //dump(is_array($response[0]));
-        $entityManager = $this->getContainer()->get('doctrine.orm.entity_manager');
-        //$entityManager->persist($product);
-        //$entityManager->flush();
-        foreach($response as $product) {
 
-            //$string = "552  \u00d7  Can 473\u00a0ml";
+        foreach($beers as $product) {
 
             $matches = [];
             preg_match_all('/([0-9]+)/',$product['size'], $matches);
+            $numberOfCans = $matches[0][0];
+            $canCapacity = $matches[0][1];
+            $totalPrice = (float)$product['price'];
 
-            $canNumber = $matches[0][0];
-            $canCapacity = $matches[0][3];
-            $canCapacity = (int)$canCapacity / 1000; // convert to litres
-            $price = $product['price'];
-            $pricePerLitre = (int)$price / $canCapacity;
+            $pricePerLitre = $this->calculatePricePerLitre($numberOfCans, $canCapacity, $totalPrice);
+            $pricePerLitre = (int)($pricePerLitre * 100);
 
-            $brewer = new Brewer($product['brewer']);
+            $brewers = $brewerRepository->findByName($product['brewer']);
+            if($brewers) {
+                $brewer = $brewers[0];
+            } else {
+                $brewer = new Brewer($product['brewer']);
+                try {
+                    $entityManager->persist($brewer);
+                    $entityManager->flush();
+                } catch (\Exception $e) {
+                    $brewer = null;
+                    $output->writeln('Could not create a brewer');
+                }
+
+            }
 
             $beer = new Beer($product['name'], $pricePerLitre, $product['country'], $product['type'], $brewer);
+            $entityManager->persist($beer);
+            $entityManager->flush();
         }
 
     }
 
-    private function calculatePricePerLitre(int $numberOfCans, int $canCapacity, float $totalPrice) {
+    private function calculatePricePerLitre(int $numberOfCans, int $canCapacity, float $totalPrice): float {
 
         $canCapacity = (int)$canCapacity / 1000; // convert to litres
         $pricePerLitre = (int)$totalPrice / $canCapacity;
