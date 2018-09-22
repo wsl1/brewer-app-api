@@ -55,14 +55,19 @@ class PopulateDatabase extends ContainerAwareCommand
                     $entityManager->flush();
                 } catch (\Exception $e) {
                     $brewer = null;
-                    $output->writeln('Could not create a brewer');
+                    $output->writeln('Could not insert a brewer');
                 }
 
             }
 
             $beer = new Beer($product['name'], $pricePerLitre, $product['country'], $product['type'], $brewer);
-            $entityManager->persist($beer);
-            $entityManager->flush();
+            try {
+                $entityManager->persist($beer);
+                $entityManager->flush();
+            } catch (\Exception $e) {
+                $output->writeln('Could not insert a beer');
+            }
+
         }
 
     }
