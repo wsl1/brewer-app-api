@@ -8,14 +8,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use League\ISO3166\ISO3166;
 
 class BeerController extends Controller
 {
     /**
      * @Route("/beers")
      */
-    public function getBeers()
-    {
+    public function getBeers() {
         $serializer = $this->get('jms_serializer');
 
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
@@ -26,7 +26,7 @@ class BeerController extends Controller
     }
 
     /**
-     * @Route("/beers/{name}")
+     * @Route("/beers/name/{name}")
      */
     public function getBeersByName(string $name) {
         $serializer = $this->get('jms_serializer');
@@ -39,7 +39,7 @@ class BeerController extends Controller
     }
 
     /**
-     * @Route("/beers/{from}/{to}")
+     * @Route("/beers/price/{from}/{to}")
      */
     public function getBeersByPriceRange(float $from, float $to) {
         $serializer = $this->get('jms_serializer');
@@ -49,6 +49,31 @@ class BeerController extends Controller
 
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
         $beers = $beerRepository->findByPriceRange($from, $to);
+
+        $response = $serializer->serialize($beers, 'json');
+        return new Response($response);
+    }
+
+    /**
+     * @Route("/beers/country/{countryCode}", requirements={"countryCode"="[a-zA-Z]{2}"})
+     */
+    public function getBeersByCountryCode(string $countryCode) {
+        $serializer = $this->get('jms_serializer');
+        $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
+        $beers = $beerRepository->findByCountryCode($countryCode);
+
+        $response = $serializer->serialize($beers, 'json');
+        return new Response($response);
+    }
+
+    /**
+     * @Route("/beers/type/{type}")
+     */
+    public function getBeersByType(string $type) {
+        $serializer = $this->get('jms_serializer');
+
+        $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
+        $beers = $beerRepository->findByType($type);
 
         $response = $serializer->serialize($beers, 'json');
         return new Response($response);
