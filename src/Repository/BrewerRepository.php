@@ -19,11 +19,7 @@ class BrewerRepository extends ServiceEntityRepository
         parent::__construct($registry, Brewer::class);
     }
 
-//    /**
-//     * @return Brewer[] Returns an array of Brewer objects
-//     */
-
-    public function findByName(string $name): array
+    public function findByName(string $name): ?array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.name = :name')
@@ -33,16 +29,16 @@ class BrewerRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findAllBrewers(): ?array {
 
-    /*
-    public function findOneBySomeField($value): ?Brewer
-    {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        // select br.id,br.name, count(b.id) from brewers br inner join beers b on br.id=b.brewer group by br.id;
+        $sql = "select br.id,br.name, count(b.id) as numberOfBeers from brewers br inner join beers b on br.id=b.brewer group by br.id;";
+        $entityManager = $this->getEntityManager();
+        $query = $entityManager->getConnection()->prepare($sql);
+        $query->execute();
+        $brewers = $query->fetchAll();
+
+        return $brewers;
+
     }
-    */
 }
