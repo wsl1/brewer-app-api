@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Beer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use League\ISO3166\ISO3166;
 
 /**
  * @method Beer|null find($id, $lockMode = null, $lockVersion = null)
@@ -22,8 +23,9 @@ class BeerRepository extends ServiceEntityRepository
 
     public function findByName(string $name): array
     {
+        $name = strtoupper($name);
         return $this->createQueryBuilder('b')
-            ->andWhere('b.name = :name')
+            ->andWhere('upper(b.name) = :name')
             ->setParameter('name', $name)
             ->getQuery()
             ->getResult()
@@ -52,10 +54,25 @@ class BeerRepository extends ServiceEntityRepository
             ;
     }
 
+    public function findByCountryCode(string $countryCode): array
+    {
+
+        $data = (new ISO3166)->alpha2($countryCode);
+        $country = $data['name'];
+
+        return $this->createQueryBuilder('b')
+            ->andWhere('b.country = :country')
+            ->setParameter('country', $country)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     public function findByType(string $type): array
     {
+        $type = strtoupper($type);
         return $this->createQueryBuilder('b')
-            ->andWhere('b.type = :type')
+            ->andWhere('upper(b.type) = :type')
             ->setParameter('type', $type)
             ->getQuery()
             ->getResult()
