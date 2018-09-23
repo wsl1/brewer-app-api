@@ -80,9 +80,7 @@ class BeerRepository extends ServiceEntityRepository
 
     public function findByAll(?string $name, ?int $from, ?int $to, ?string $country, ?string $type, ?string $brewerName): array {
 
-
         $qb = $this->createQueryBuilder('b');
-
 
         if($brewerName){
             $brewerName = strtoupper($brewerName);
