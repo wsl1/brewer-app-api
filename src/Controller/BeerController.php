@@ -20,10 +20,19 @@ class BeerController extends Controller
         $serializer = $this->get('jms_serializer');
 
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
-        $beers = $beerRepository->findAll();
+        try {
+            $beers = $beerRepository->findAll();
+            if(!count($beers)) {
+                return new JsonResponse(['message' => 'Could not find any beer'], 404);
+            }
+            $response = $serializer->serialize($beers, 'json');
+            return new Response($response);
 
-        $response = $serializer->serialize($beers, 'json');
-        return new Response($response);
+        } catch (\Exception $e){
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
+
+
     }
 
     /**
@@ -33,10 +42,17 @@ class BeerController extends Controller
         $serializer = $this->get('jms_serializer');
 
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
-        $beers = $beerRepository->findByName($name);
+        try {
+            $beers = $beerRepository->findByName($name);
+            if(!count($beers)){
+                return new JsonResponse(['message' => 'Could not find any beer'], 404);
+            }
+            $response = $serializer->serialize($beers, 'json');
+            return new Response($response);
 
-        $response = $serializer->serialize($beers, 'json');
-        return new Response($response);
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
     }
 
     /**
@@ -49,10 +65,17 @@ class BeerController extends Controller
         $to = $to * 100;
 
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
-        $beers = $beerRepository->findByPriceRange($from, $to);
+        try {
+            $beers = $beerRepository->findByPriceRange($from, $to);
+            if(!count($beers)){
+                return new JsonResponse(['message' => 'Could not find any beer'], 404);
+            }
+            $response = $serializer->serialize($beers, 'json');
+            return new Response($response);
 
-        $response = $serializer->serialize($beers, 'json');
-        return new Response($response);
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
     }
 
     /**
@@ -61,10 +84,16 @@ class BeerController extends Controller
     public function getCountries() {
         $serializer = $this->get('jms_serializer');
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
-        $countries = $beerRepository->findCountries();
+        try {
+            $countries = $beerRepository->findCountries();
+            if(!count($countries)) {
+                return new JsonResponse(['message' => 'Could not find any country'], 404);
+            }
+            return new JsonResponse($countries);
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
 
-        //$response = $serializer->serialize($countries, 'json');
-        return new JsonResponse($countries);
     }
 
     /**
@@ -73,10 +102,17 @@ class BeerController extends Controller
     public function getBeersByCountryCode(string $countryCode) {
         $serializer = $this->get('jms_serializer');
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
-        $beers = $beerRepository->findByCountryCode($countryCode);
+        try {
+            $beers = $beerRepository->findByCountryCode($countryCode);
+            if(!count($beers)) {
+                return new JsonResponse(['message' => 'Could not find any beer'], 404);
+            }
+            $response = $serializer->serialize($beers, 'json');
+            return new Response($response);
 
-        $response = $serializer->serialize($beers, 'json');
-        return new Response($response);
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
     }
 
     /**
@@ -86,10 +122,17 @@ class BeerController extends Controller
         $serializer = $this->get('jms_serializer');
 
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
-        $beers = $beerRepository->findByType($type);
+        try {
+            $beers = $beerRepository->findByType($type);
+            if(!count($beers)) {
+                return new JsonResponse(['message' => 'Could not find any beer'], 404);
+            }
+            $response = $serializer->serialize($beers, 'json');
+            return new Response($response);
 
-        $response = $serializer->serialize($beers, 'json');
-        return new Response($response);
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
     }
 
     /**
@@ -106,9 +149,15 @@ class BeerController extends Controller
         $serializer = $this->get('jms_serializer');
 
         $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
-        $beers = $beerRepository->findByAll($name, $from, $to, $country, $type, $brewerName);
-
-        $response = $serializer->serialize($beers, 'json');
-        return new Response($response);
+        try {
+            $beers = $beerRepository->findByAll($name, $from, $to, $country, $type, $brewerName);
+            if(!count($beers)) {
+                return new JsonResponse(['message' => 'Could not find any beer'], 404);
+            }
+            $response = $serializer->serialize($beers, 'json');
+            return new Response($response);
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
     }
 }
