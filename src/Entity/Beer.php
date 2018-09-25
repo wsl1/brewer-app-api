@@ -38,16 +38,22 @@ class Beer
     private $type;
 
     /**
+     * @ORM\Column(type="text")
+     */
+    private $img;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Brewer", inversedBy="beers")
      * @ORM\JoinColumn(name="brewer", referencedColumnName="id")
      */
     private $brewer;
 
-    public function __construct($name, $pricePerLitre, $country, $type, $brewer) {
+    public function __construct($name, $pricePerLitre, $country, $type, $img, $brewer) {
         $this->name = $name;
         $this->pricePerLitre = $pricePerLitre;
         $this->country = $country;
         $this->type = $type;
+        $this->img = $img;
         $this->brewer = $brewer;
     }
     public function getId(): ?int
@@ -118,6 +124,24 @@ class Beer
     {
         $this->type = $type;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getImg()
+    {
+        return $this->img;
+    }
+
+    /**
+     * @param mixed $img
+     */
+    public function setImg($img): void
+    {
+        $this->img = $img;
+    }
+
+
 
     /**
      * @return mixed
