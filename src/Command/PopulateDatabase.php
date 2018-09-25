@@ -59,8 +59,7 @@ class PopulateDatabase extends ContainerAwareCommand
                 }
 
             }
-
-            $beer = new Beer($product['name'], $pricePerLitre, $product['country'], $product['type'], $brewer);
+            $beer = new Beer($product['name'], $pricePerLitre, $product['country'], $product['type'], $product['image_url'], $brewer);
             try {
                 $entityManager->persist($beer);
                 $entityManager->flush();
