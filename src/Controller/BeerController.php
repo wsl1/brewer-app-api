@@ -135,13 +135,34 @@ class BeerController extends Controller
         }
     }
 
+
+    /**
+     * @Route("/beers/types")
+     */
+    public function getTypes() {
+        $serializer = $this->get('jms_serializer');
+
+        $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
+        try {
+            $types = $beerRepository->findTypes();
+            if(!count($types)) {
+                return new JsonResponse(['message' => 'Could not find any type'], 404);
+            }
+            $response = $serializer->serialize($types, 'json');
+            return new Response($response);
+
+        } catch (\Exception $e) {
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
+    }
+
     /**
      * @Route("/beers/all")
      */
     public function getBeersByAll(Request $request){
         $name = $request->query->get('name') ? $request->query->get('name') : null;
-        $from = $request->query->get('from') ? $request->query->get('from') : null;
-        $to = $request->query->get('to') ? $request->query->get('to') : null;
+        $from = $request->query->get('from') ? (int)$request->query->get('from') : null;
+        $to = $request->query->get('to') ? (int)$request->query->get('to') : null;
         $country = $request->query->get('country') ? $request->query->get('country') : null;
         $type = $request->query->get('type') ? $request->query->get('type') : null;
         $brewerName = $request->query->get('brewerName') ? $request->query->get('brewerName') : null;
@@ -157,6 +178,7 @@ class BeerController extends Controller
             $response = $serializer->serialize($beers, 'json');
             return new Response($response);
         } catch (\Exception $e) {
+            var_dump($e->getMessage());
             return new JsonResponse(['message' => 'An error occured'], 500);
         }
     }
