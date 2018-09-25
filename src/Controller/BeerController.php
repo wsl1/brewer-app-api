@@ -36,6 +36,31 @@ class BeerController extends Controller
     }
 
     /**
+     * @Route("/beers/{id}", requirements={"id"="\d+"})
+     */
+
+    public function getBeerById($id) {
+        $serializer = $this->get('jms_serializer');
+
+        $beerRepository = $this->getDoctrine()->getRepository(Beer::class);
+        try {
+            $beer = $beerRepository->find($id);
+            if(!$beer) {
+                return new JsonResponse(['message' => 'Could not find a beer'], 404);
+            }
+            $response = $serializer->serialize($beer, 'json');
+            return new Response($response);
+
+        } catch (\Exception $e){
+            var_dump($e->getMessage());
+            return new JsonResponse(['message' => 'An error occured'], 500);
+        }
+
+
+    }
+
+
+    /**
      * @Route("/beers/name/{name}")
      */
     public function getBeersByName(string $name) {
