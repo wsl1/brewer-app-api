@@ -78,46 +78,55 @@ class BeerRepository extends ServiceEntityRepository
             ;
     }
 
-    public function findByAll(?string $name, ?int $from, ?int $to, ?string $country, ?string $type, ?string $brewerName): array {
+    public function findTypes(): array
+    {
+        return $this->createQueryBuilder('b')
+            ->select('DISTINCT b.type')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function findByAll(?string $name, ?int $from, ?int $to, ?string $country, ?string $type, ?string $brewerName) {
 
         $qb = $this->createQueryBuilder('b');
 
-        if($brewerName){
+        /*if($brewerName){
             $brewerName = strtoupper($brewerName);
             $qb->select('b.id,b.name, b.pricePerLitre, b.country, b.type, br.name');
-            $qb->andWhere('upper(b.brewer) LIKE :brewerName%');
-            $qb->setParameter('brewerName', $brewerName);
+            $qb->andWhere('upper(b.brewer) LIKE :brewerName');
+            $qb->setParameter('brewerName', $brewerName . '%');
             $qb->innerJoin('b', 'brewers', 'br', 'br.id = b.brewer');
-        }
+        }*/
+
 
         if($name) {
             $name = strtoupper($name);
             $qb->andWhere('upper(b.name) = :name')
-                ->setParameter('name', $name);
+                ->setParameter('name', $name  . '%');
         }
         if($from) {
-            $qb->andWhere('b.pricePerLitre) >= :from')
+            $qb->andWhere('b.pricePerLitre >= :from')
                 ->setParameter('from', $from);
 
         }
 
         if($to) {
-            $qb->andWhere('b.pricePerLitre) <= :to')
+            $qb->andWhere('b.pricePerLitre <= :to')
                 ->setParameter('to', $to);
         }
         if($country) {
             $country = strtoupper($country);
-            $qb->andWhere('upper(b.country) LIKE :country%')
+            $qb->andWhere('upper(b.country) LIKE :country')
                 ->setParameter('country', $country);
         }
         if($type) {
             $type = strtoupper($type);
-            $qb->andWhere('upper(b.type) LIKE :type%')
+            $qb->andWhere('upper(b.type) LIKE :type')
                 ->setParameter('type', $type);
         }
 
-
-        return $this->createQueryBuilder('b')
+        return $qb
             ->getQuery()
             ->getResult()
             ;
